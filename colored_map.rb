@@ -59,33 +59,34 @@ class ColoredMap
 	end
 
 	def color_map
-		# go through each element and color it
+		# go through each square and color the region if not already colored
 		@map.each_with_index do |line, row|
 			line.each_with_index do |cell, col|
-				unless cell.colored? 
-					color_region(row, col, @map[row][col], {}) 
-				end
+				color_region(row, col, @map[row][col], {}) unless cell.colored? 
 			end
 		end
 	end
 
 	def color_region(x, y, name, colors_seen)
+		# mark as visited
 		@map[x][y].visit
 		# pick a color that hasn't been seen
 		chosen_color = nil
 
-		# iterate over each neighboring cell first - Recurse or note color
+		# iterate over each neighboring cell - Recurse or note color
 		each_direction(x, y) do |xp, yp|
 			if (@map[xp][yp] == name) && !@map[xp][yp].visited?		# same region
-				chosen_color = color_region(xp, yp, name, colors_seen)
+				chosen_color = color_region(xp, yp, name, colors_seen) # recursive call
 			elsif @map[xp][yp].colored?		# neighboring cell already colored
 				colors_seen[@map[xp][yp].color] = true	
 			end
 		end
 
+		# set to the color already chosen or to a color not yet seen
 		@map[x][y].color = chosen_color || COLORS.select{|color| !colors_seen[color]}[0]
 	end
 
+	# Enumerator returning each available direction
 	def each_direction(x, y)
 		yield x-1, y if x > 0 #up
 		yield x, y-1 if y > 0 #left
@@ -116,12 +117,12 @@ end
 
 if __FILE__ == $PROGRAM_NAME
 
-	raise "NO ARGUMENTS GIVEN - map file must be provided" unless ARGV[0]
+	abort "NO ARGUMENTS GIVEN - map file must be provided" unless ARGV[0]
 
 	begin
 		mapfile = File.new(ARGV[0])
 	rescue
-		puts "Unable to open #{ARGV[0]}"
+		abort "Unable to open file '#{ARGV[0]}'"
 	end
 
 	# read in map file
@@ -130,10 +131,10 @@ if __FILE__ == $PROGRAM_NAME
 		regions[line_num] = line.chomp.split(//)
 	end
 
-	#color map
+	# color map
 	mymap = ColoredMap.new(regions)
 	mymap.color_map
 
-	#display colored map
+	# display colored map
 	puts mymap.to_color
 end
