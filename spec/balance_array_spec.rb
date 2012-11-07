@@ -14,6 +14,14 @@ describe BalanceArray do
 			it "can handle a small array" do
 				BalanceArray.balance([1, 1]).should == 0
 			end
+
+			it "balances far left" do
+				BalanceArray.balance([12, 1, 2, 4, 5]).should == 0
+			end
+
+			it "balances far right" do
+				BalanceArray.balance([1, 2, 4, 5, -12]).should == 4
+			end
 		end
 
 		context "failure" do
