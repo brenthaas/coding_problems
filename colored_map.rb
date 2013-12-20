@@ -62,36 +62,47 @@ class ColoredMap
 		# go through each square and color the region if not already colored
 		@map.each_with_index do |line, row|
 			line.each_with_index do |cell, col|
-				color_region(row, col, @map[row][col], {}) unless cell.colored? 
+				color_region(row, col) unless cell.colored? 
 			end
 		end
 	end
 
-	def color_region(x, y, name, colors_seen)
-		# mark as visited
-		@map[x][y].visit
+	def color_region(startx, starty)
 		# pick a color that hasn't been seen
-		chosen_color = nil
-
-		# iterate over each neighboring cell - Recurse or note color
-		each_direction(x, y) do |xp, yp|
-			if (@map[xp][yp] == name) && !@map[xp][yp].visited?		# same region
-				chosen_color = color_region(xp, yp, name, colors_seen) # recursive call
-			elsif @map[xp][yp].colored?		# neighboring cell already colored
-				colors_seen[@map[xp][yp].color] = true	
+		colors_seen = {}
+		region = traverse_region(startx,starty) do |x,y|
+			debugger if [x, y] == [2, 15]
+			each_direction(x,y) do |px,py|
+				colors_seen[@map[px][py].color] = true if @map[px][py].colored? && @map[x][y] != @map[px][py]
 			end
 		end
 
-		# set to the color already chosen or to a color not yet seen
-		@map[x][y].color = chosen_color || COLORS.select{|color| !colors_seen[color]}[0]
+		# choose a color that has not been seen
+		chosen_color = COLORS.select{|color| !colors_seen[color]}[0]
+		# and color all squares in the region
+		region.each { |x,y| @map[x][y].color = chosen_color }
+	end
+
+	# Enumerator which yields each square in the region
+	def traverse_region(x, y, &block)
+		traversed = [[x,y]]
+		@map[x][y].visit
+		block.call x, y
+
+		each_direction(x,y) do |newx, newy|
+			if @map[x][y] == @map[newx][newy] && !@map[newx][newy].visited?
+				traversed += traverse_region(newx,newy,&block) 
+			end
+		end
+		traversed
 	end
 
 	# Enumerator returning each available direction
 	def each_direction(x, y)
 		yield x-1, y if x > 0 #up
 		yield x, y-1 if y > 0 #left
-		yield x, y+1 if y < @map[x].length-1 #right
-		yield x+1, y if x < @map.length-1 #down
+		yield x, y+1 if @map[x][y+1] #right
+		yield x+1, y if @map[x+1]
 	end
 
 	def to_s
@@ -109,8 +120,8 @@ class ColoredMap
 	def to_debug
 		@map.map do |line|
 			line.map do |cell|
-				puts cell + cell.color + (cell.visited? ? "v" : ".") + " "
-			end
+				(cell.colored? ? cell.color : cell) + (cell.visited? ? "." : "_") 
+			end << "\n"
 		end.join
 	end
 end
@@ -128,7 +139,7 @@ if __FILE__ == $PROGRAM_NAME
 	# read in map file
 	regions = []
 	mapfile.each_with_index do |line, line_num|
-		regions[line_num] = line.chomp.split(//)
+		regions[line_num] = line.strip.split(//)
 	end
 
 	# color map

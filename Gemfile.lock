@@ -1,0 +1,15 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    html5-beautifier (0.0.2)
+      nokogiri
+    mini_portile (0.5.2)
+    nokogiri (1.6.0)
+      mini_portile (~> 0.5.0)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  html5-beautifier
+  nokogiri
