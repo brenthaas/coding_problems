@@ -19,10 +19,10 @@ class BalanceArray
 			running_sum
 		}.reverse
 
-		ary.each_index do |index| 
+		ary.each_index do |index|
 			return index if right_sum[index] == left_sum[index]
 		end
-		
+
 		return nil	# no balance point found
 	end
 end
