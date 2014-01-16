@@ -1,39 +1,53 @@
 require_relative '../credit_card'
 
 describe CreditCard do
-  let(:valid_card) {CreditCard.new("First Last", 1234567812345670, 100)}
+  let(:card) {CreditCard.new(1234567812345670, 100)}
 
   it "starts with a balance of 0" do
-    valid_card.balance.should == 0
+    card.balance.should == 0
   end
 
   describe "#valid?" do
     it "validates the card number against luhn 10" do
-      CreditCard.should_receive(:passes_luhn_10?).with(valid_card.card_number)
-      valid_card.valid?
+      CreditCard.should_receive(:passes_luhn_10?).with(card.card_number)
+      card.valid?
+    end
+  end
+
+  describe "#balance_string" do
+    it "gives the balance with a dollar sign" do
+      card.balance_string.should == "$#{card.balance}"
+    end
+    it "gives the balance as 'error' if the card is invalid" do
+      card.stub(:valid?).and_return false
+      card.balance_string.should == "error"
     end
   end
 
   describe "#charge" do
     it "adds the amount to the balance" do
       amount = 10
-      expect{valid_card.charge amount}.to change{valid_card.balance}.by amount
+      expect{card.charge amount}.to change{card.balance}.by amount
     end
     context "does NOT change the balance" do
       specify "when the card is at its limit" do
-        too_much = valid_card.limit + 1
-        expect{valid_card.charge too_much}.to_not change{valid_card.balance}
+        too_much = card.limit + 1
+        expect{card.charge too_much}.to_not change{card.balance}
       end
       specify "when the card number is invalid" do
         CreditCard.stub(:passes_luhn_10?).and_return false
-        expect{valid_card.charge 1}.to_not change{valid_card.balance}
+        expect{card.charge 1}.to_not change{card.balance}
       end
     end
   end
 
   describe "#credit" do
     it "reduces the balance" do
-      expect{valid_card.credit 10}.to change{valid_card.balance}.by -10
+      expect{card.credit 10}.to change{card.balance}.from(0).to(-10)
+    end
+    it "can't be tricked into exceeding limit" do
+      too_much = (card.limit + 1)
+      expect{card.credit -too_much}.to_not change{card.balance}
     end
   end
 

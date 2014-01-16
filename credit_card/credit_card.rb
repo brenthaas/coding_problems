@@ -5,25 +5,30 @@ class Fixnum
 end
 
 class CreditCard
-  attr_reader :name, :card_number, :balance, :limit
+  attr_reader :card_number, :balance, :limit
 
-  def initialize(name, card_number, dollar_limit)
-    @name = name
+  def initialize(card_number, dollar_limit)
     @card_number = card_number
     @limit = dollar_limit
     @balance = 0
   end
 
+  def balance_string
+    if valid?
+      "$#{balance}"
+    else
+      "error"
+    end
+  end
+
   def charge(amount)
-    if valid? && charge_within_limit?(amount)
+    if (valid? && charge_within_limit?(amount))
       @balance += amount
     end
   end
 
   def credit(amount)
-    if valid?
-      @balance -= amount
-    end
+    charge -amount
   end
 
   def valid?
