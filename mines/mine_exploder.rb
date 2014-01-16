@@ -40,6 +40,5 @@ class MineExploder
     affected_mines = @mines.map{ |m| m.affected_mines(@mines) }
     counts = affected_mines.map{ |mines| mines.count }
     max_explosions = counts.max
-    explosive_mines =
   end
 end

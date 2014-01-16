@@ -10,7 +10,7 @@ describe "mine_exploder" do
   end
   describe "#biggest_explosions" do
     it "returns nil if there are no mines" do
-      subject.biggest_explosions.should be_nil
+      expect(subject.biggest_explosions).to be_nil
     end
     it "returns the only mine if there's only one" do
       subject.add_mine(1,1,1)
