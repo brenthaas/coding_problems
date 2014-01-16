@@ -8,18 +8,18 @@ describe CreditCard do
   end
 
   describe "#valid?" do
-    it "validates the card number" do
-      CreditCard.should_receive(:validate_number)
+    it "validates the card number against luhn 10" do
+      CreditCard.should_receive(:passes_luhn_10?).with(valid_card.card_number)
       valid_card.valid?
     end
   end
   describe "class methods" do
-    describe "#validate_number" do
+    describe "passes_luhn_10?" do
       context "valid numbers" do
         valid_numbers = [4111111111111111, 5454545454545454, 49927398716, 1234567812345670]
         valid_numbers.each do |num|
           it "#{num}" do
-            CreditCard.validate_number(num).should be_true
+            CreditCard.passes_luhn_10?(num).should be_true
           end
         end
       end
@@ -27,7 +27,7 @@ describe CreditCard do
         invalid_numbers = [4111111111111112, 1234567890123456, 49927398717, 1234567812345678]
         invalid_numbers.each do |num|
           it "#{num}" do
-            CreditCard.validate_number(num).should be_false
+            CreditCard.passes_luhn_10?(num).should be_false
           end
         end
       end

@@ -15,13 +15,12 @@ class CreditCard
   end
 
   def valid?
-    self.class.validate_number(@card_number)
+    self.class.passes_luhn_10? @card_number
   end
 
-  def self.validate_number(number)
+  def self.passes_luhn_10? number
     digits = number.to_digits
-    digits.reverse!
-    products = alternate_doubles digits
+    products = alternate_doubles digits.reverse
     sum = sum_digits products
     checksum = sum % 10
     checksum == 0
