@@ -13,6 +13,30 @@ describe CreditCard do
       valid_card.valid?
     end
   end
+
+  describe "#charge" do
+    it "adds the amount to the balance" do
+      amount = 10
+      expect{valid_card.charge amount}.to change{valid_card.balance}.by amount
+    end
+    context "does NOT change the balance" do
+      specify "when the card is at its limit" do
+        too_much = valid_card.limit + 1
+        expect{valid_card.charge too_much}.to_not change{valid_card.balance}
+      end
+      specify "when the card number is invalid" do
+        CreditCard.stub(:passes_luhn_10?).and_return false
+        expect{valid_card.charge 1}.to_not change{valid_card.balance}
+      end
+    end
+  end
+
+  describe "#credit" do
+    it "reduces the balance" do
+      expect{valid_card.credit 10}.to change{valid_card.balance}.by -10
+    end
+  end
+
   describe "class methods" do
     describe "passes_luhn_10?" do
       context "valid numbers" do

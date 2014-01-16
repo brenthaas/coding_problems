@@ -14,6 +14,18 @@ class CreditCard
     @balance = 0
   end
 
+  def charge(amount)
+    if valid? && charge_within_limit?(amount)
+      @balance += amount
+    end
+  end
+
+  def credit(amount)
+    if valid?
+      @balance -= amount
+    end
+  end
+
   def valid?
     self.class.passes_luhn_10? @card_number
   end
@@ -27,6 +39,10 @@ class CreditCard
   end
 
   private
+    def charge_within_limit?(amount)
+      (@balance + amount) <= @limit
+    end
+
     def self.alternate_doubles numbers
       count = 0
       numbers.map do |num|
