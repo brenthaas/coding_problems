@@ -1,0 +1,19 @@
+#! /usr/bin/ruby
+
+def play(file)
+  exploder = MineExploder.new
+  file.each do |line|
+    (x, y, radius) = line.split.map(&:to_i)
+    puts "loading mine: #{x}, #{y}, #{radius}"
+    exploder.add_mine(x, y, radius)
+  end
+  puts exploder.biggest_explosions
+end
+
+file = ARGV[0]
+unless file && File.exists?(file)
+  puts "You must supply a mine file!"
+  exit 0
+end
+
+play(File.new(file))
