@@ -1,10 +1,22 @@
 require_relative '../credit_card'
 
 describe CreditCard do
+  let(:valid_card) {CreditCard.new("First Last", 1234567812345670, 100)}
+
+  it "starts with a balance of 0" do
+    valid_card.balance.should == 0
+  end
+
+  describe "#valid?" do
+    it "validates the card number" do
+      CreditCard.should_receive(:validate_number)
+      valid_card.valid?
+    end
+  end
   describe "class methods" do
     describe "#validate_number" do
       context "valid numbers" do
-        valid_numbers = [4111111111111111, 5454545454545454]
+        valid_numbers = [4111111111111111, 5454545454545454, 49927398716, 1234567812345670]
         valid_numbers.each do |num|
           it "#{num}" do
             CreditCard.validate_number(num).should be_true
@@ -12,7 +24,7 @@ describe CreditCard do
         end
       end
       context "invalid numbers" do
-        invalid_numbers = [4111111111111112, 1234567890123456]
+        invalid_numbers = [4111111111111112, 1234567890123456, 49927398717, 1234567812345678]
         invalid_numbers.each do |num|
           it "#{num}" do
             CreditCard.validate_number(num).should be_false
@@ -22,6 +34,7 @@ describe CreditCard do
     end
   end
 
+  # These can be removed in theory, but they were helpful
   describe "private methods" do
     describe "#alternate_doubles" do
       it "doubles every 2nd number" do
@@ -40,19 +53,6 @@ describe CreditCard do
 end
 
 
-describe String do
-  describe "#dollar_value" do
-    it "converts $<number> to an integer" do
-      "$100".dollar_value.should == 100
-    end
-    it "also works for numbers without a dollar sign" do
-      "50".dollar_value.should == 50
-    end
-    specify "invalid input evaluates to 0" do
-      "invalid".dollar_value.should == 0
-    end
-  end
-end
 
 describe Fixnum do
   describe "#to_digits" do

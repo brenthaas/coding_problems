@@ -1,10 +1,3 @@
-class String
-  def dollar_value
-    self =~ /^\$?(\d*)/
-    $1.to_i
-  end
-end
-
 class Fixnum
   def to_digits
     self.to_s.split(//).map(&:to_i)
@@ -14,11 +7,15 @@ end
 class CreditCard
   attr_reader :name, :card_number, :balance, :limit
 
-  def initialize(name, card_number, limit='$0')
+  def initialize(name, card_number, dollar_limit)
     @name = name
     @card_number = card_number
-    @limit = limit.dollar_value
+    @limit = dollar_limit
     @balance = 0
+  end
+
+  def valid?
+    self.class.validate_number(@card_number)
   end
 
   def self.validate_number(number)
